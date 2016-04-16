@@ -73,6 +73,7 @@ class PluginEditor extends Component {
     newArgs.push({
       getEditorState: this.getEditorState,
       setEditorState: this.onChange,
+      fireMethod: this.fireMethod,
     });
     for (const plugin of plugins) {
       if (typeof plugin[methodName] !== 'function') continue;
@@ -89,6 +90,7 @@ class PluginEditor extends Component {
     newArgs.push({
       getEditorState: this.getEditorState,
       setEditorState: this.onChange,
+      fireMethod: this.fireMethod,
     });
 
     if (methodName === 'blockRendererFn') {
@@ -168,8 +170,15 @@ class PluginEditor extends Component {
       pluginHooks[attrName] = this.createFnHooks(attrName, plugins);
     });
 
+    this.pluginHooks = pluginHooks;
     return pluginHooks;
   };
+
+  fireMethod = (methodName, ...args) => {
+    if (this.pluginHooks[methodName]) {
+      this.pluginHooks[methodName](...args);
+    }
+  }
 
   resolvePlugins = () => {
     const plugins = this.props.plugins.slice(0);
