@@ -42,6 +42,8 @@ class PluginEditor extends Component {
     }
   }
 
+  state = {};
+
   componentWillMount() {
     const compositeDecorator = createCompositeDecorator(
       this.resolveDecorators(),
@@ -73,6 +75,7 @@ class PluginEditor extends Component {
     newArgs.push({
       getEditorState: this.getEditorState,
       setEditorState: this.onChange,
+      setReadOnly: this.setReadOnly,
     });
     for (const plugin of plugins) {
       if (typeof plugin[methodName] !== 'function') continue;
@@ -89,6 +92,7 @@ class PluginEditor extends Component {
     newArgs.push({
       getEditorState: this.getEditorState,
       setEditorState: this.onChange,
+      setReadOnly: this.setReadOnly,
     });
 
     if (methodName === 'blockRendererFn') {
@@ -171,6 +175,10 @@ class PluginEditor extends Component {
     return pluginHooks;
   };
 
+  setReadOnly = (readOnly) => {
+    this.setState({ readOnly });
+  }
+
   resolvePlugins = () => {
     const plugins = this.props.plugins.slice(0);
     if (this.props.defaultKeyBindings) {
@@ -226,6 +234,7 @@ class PluginEditor extends Component {
         onChange={ this.onChange }
         editorState={ this.props.editorState }
         ref="editor"
+        readOnly={this.props.readOnly || pluginProps.readOnly || this.state.readOnly}
       />
     );
   }
