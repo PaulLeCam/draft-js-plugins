@@ -187,6 +187,17 @@ class PluginEditor extends Component {
       .flatMap((plugin) => plugin.decorators);
   };
 
+  renderInDecorators = (InnerElement, decorators, editor = InnerElement) => {
+    if (decorators && decorators.length > 0) {
+      const [Decorator, ...rest] = decorators;
+      return (
+        <Decorator pluginEditor={this} {...editor.props}>
+          {this.renderInDecorators(InnerElement, rest, editor)}
+        </Decorator>
+      );
+    } return InnerElement;
+  }
+
   resolveCustomStyleMap = () => (
     this.props.plugins
      .filter(plug => plug.customStyleMap !== undefined)
@@ -202,6 +213,7 @@ class PluginEditor extends Component {
 
   render() {
     let pluginProps = {};
+    const decorators = [];
 
     // This puts pluginProps and the object inside getEditorProps
     // on the Editor component (main use case is for aria props right now)
@@ -213,11 +225,15 @@ class PluginEditor extends Component {
           ...plugin.getEditorProps(),
         };
       }
+
+      if (plugin.editorDecorators) {
+        decorators.push(...plugin.editorDecorators);
+      }
     });
 
     const pluginHooks = this.createPluginHooks();
     const customStyleMap = this.resolveCustomStyleMap();
-    return (
+    return this.renderInDecorators(
       <Editor
         { ...this.props }
         { ...pluginProps }
@@ -227,6 +243,7 @@ class PluginEditor extends Component {
         editorState={ this.props.editorState }
         ref="editor"
       />
+      />, decorators
     );
   }
 }
